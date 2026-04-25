@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>6DofRobot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+</head>
+<body class="p-4 h-screen flex flex-col gap-4">
+
+    <div class="control-panel p-3 flex items-center gap-2">
+        <button id="forward-nav-btn" class="nav-btn active">Forward</button>
+        <button id="inverse-nav-btn" class="nav-btn">Inverse</button>
+        <div class="flex-grow"></div>
+        <button id="settings-btn" class="nav-btn flex items-center gap-2">
+            <img src="{{ url_for('static', filename='icons/settings.png') }}" class="w-4 h-4" alt="Settings">
+            Settings
+        </button>
+        <button id="home-btn" class="nav-btn flex items-center gap-2">
+            <img src="{{ url_for('static', filename='icons/home.png') }}" class="w-4 h-4" alt="Home">
+            Home XYZ
+        </button>
+    </div>
+
+    <div class="flex flex-grow gap-4 min-h-0">
+        <div class="control-panel w-2/5 p-6 overflow-y-auto">
+            <div id="forward-controls">
+                <h2 class="text-slate-400 text-center text-xs font-bold uppercase mb-6">Forward Mode</h2>
+                <div id="sliders-container" class="space-y-6"></div>
+            </div>
+            <div id="inverse-controls" class="hidden text-center p-10">
+                <h2 class="text-indigo-600 text-xs font-bold uppercase mb-4">Inverse Mode</h2>
+                <p class="text-slate-400 italic text-sm">Panel kinematyki odwrotnej gotowy do konfiguracji...</p>
+            </div>
+        </div>
+        <div class="control-panel flex-grow relative">
+            <div id="visualization-canvas" class="w-full h-full"></div>
+        </div>
+    </div>
+
+    <div class="h-1/4 flex gap-4">
+        <div class="control-panel flex-grow p-4 flex flex-col">
+            <div id="log-field" class="flex-grow p-3 overflow-y-auto whitespace-pre-wrap"></div>
+        </div>
+        <div class="control-panel w-3/5 p-4 flex items-center justify-center">
+            <div id="forward-traj" class="text-slate-400 italic">Trajectory: Forward</div>
+            <div id="inverse-traj" class="hidden text-slate-400 italic">Trajectory: Inverse</div>
+        </div>
+        <div class="control-panel w-60 p-4 flex flex-col gap-2">
+            <button class="btn-start flex items-center justify-center gap-2 flex-grow">
+                <img src="{{ url_for('static', filename='icons/play.png') }}" class="w-6 h-6" alt="Start">
+                Start
+            </button>
+            <button class="btn-pause flex items-center justify-center gap-2 flex-grow">
+                <img src="{{ url_for('static', filename='icons/pause.png') }}" class="w-6 h-6" alt="Pause">
+                Pause
+            </button>
+            <button class="btn-stop flex items-center justify-center gap-2 flex-grow">
+                <img src="{{ url_for('static', filename='icons/stop.png') }}" class="w-6 h-6" alt="Stop">
+                Stop
+                </button>
+        </div>
+    </div>
+    <script type="module" src="{{ url_for('static', filename='js/visualizer.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

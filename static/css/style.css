@@ -1,0 +1,80 @@
+body {
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    background-color: #f8fafc;
+    margin: 0;
+    overflow: hidden;
+}
+
+.control-panel {
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+}
+
+.nav-btn {
+    background-color: #ffffff;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.nav-btn:hover { background-color: #f1f5f9; }
+
+.nav-btn.active {
+    background-color: #4f46e5;
+    color: #ffffff;
+    border-color: #4f46e5;
+}
+
+#log-field {
+    background-color: #f1f5f9;
+    color: #334155;
+    font-family: 'Fira Code', 'Consolas', monospace;
+    font-size: 10pt;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.btn-start {
+    background-color: #10b981;
+    color: white;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    font-weight: 700;
+    cursor: pointer; }
+
+.btn-pause {
+    background-color: #ffffff;
+    color: white;
+    border-radius: 10px;
+    border-color: #ef4444;
+    border: 1px solid #e2e8f0;
+    color: #475569;
+    cursor: pointer;
+}
+
+.btn-stop {
+    background-color: #ef4444;
+    color: white;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+input[type=range]:focus { outline: none; }
+input[type=range]::-webkit-slider-runnable-track {
+    width: 100%; height: 4px; background: #e2e8f0; border-radius: 2px;
+}
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; height: 16px; width: 16px; border-radius: 8px;
+    background: #4f46e5; cursor: pointer; margin-top: -6px;
+}
+
+.hidden { display: none !important; }
