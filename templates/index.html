@@ -37,8 +37,18 @@
                 <div id="sliders-container" class="space-y-6"></div>
             </div>
             <div id="inverse-controls" class="hidden text-center p-10">
-                <h2 class="text-indigo-600 text-xs font-bold uppercase mb-4">Inverse Mode</h2>
-                <p class="text-slate-400 italic text-sm">Panel kinematyki odwrotnej gotowy do konfiguracji...</p>
+                <h2 class="text-slate-400 text-center text-xs font-bold uppercase mb-6">Inverse Mode</h2>
+                <div class="grid grid-cols-2 gap-4 p-4">
+                    <button onclick="jog('x', 1)" class="bg-slate-700 hover:bg-indigo-600 text-white font-bold py-3 rounded shadow-lg transition-all">X +</button>
+                    <button onclick="jog('x', -1)" class="bg-slate-700 hover:bg-indigo-600 text-white font-bold py-3 rounded shadow-lg transition-all">X -</button>
+
+                    <button onclick="jog('y', 1)" class="bg-slate-700 hover:bg-emerald-600 text-white font-bold py-3 rounded shadow-lg transition-all">Y +</button>
+                    <button onclick="jog('y', -1)" class="bg-slate-700 hover:bg-emerald-600 text-white font-bold py-3 rounded shadow-lg transition-all">Y -</button>
+
+                    <button onclick="jog('z', 1)" class="bg-slate-700 hover:bg-red-600 text-white font-bold py-3 rounded shadow-lg transition-all">Z +</button>
+                    <button onclick="jog('z', -1)" class="bg-slate-700 hover:bg-red-600 text-white font-bold py-3 rounded shadow-lg transition-all">Z -</button>
+                </div>
+                <p class="text-slate-400 text-[10px] uppercase mt-4 text-center">Step size: 0.1 units</p>
             </div>
         </div>
         <div class="control-panel flex-grow relative">

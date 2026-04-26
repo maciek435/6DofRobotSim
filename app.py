@@ -1,10 +1,8 @@
 from flask import Flask, render_template, jsonify, request
-from forward_kinematics import get_kinematic_coords
+import numpy as np
+from kinematics_solver import solve_ik, P_tcp_func, generate_trajectory
 
 app = Flask(__name__)
-
-L_DIMS = (1.5, 1.5, 1.3, 0.4)
-
 
 @app.route('/')
 def index():
@@ -13,14 +11,18 @@ def index():
 @app.route('/calculate', methods=['POST'])
 def calculate():
     data = request.json
-    angles = data.get('angles', [0, 0, 0, 0, 0, 0])
-    x, y, z = get_kinematic_coords(angles, L_DIMS)
-
+    angles = np.radians(data.get('angles', [0]*6))
+    coords = P_tcp_func(*angles).flatten()
     return jsonify({
         'status': 'success',
-        'coords': {'x': round(x, 2), 'y': round(y, 2), 'z': round(z, 2)}
+        'coords': {'x': round(coords[0], 3), 'y': round(coords[1], 3), 'z': round(coords[2], 3)}
     })
 
+@app.route('/calculate_step', methods=['POST'])
+def calculate_step():
+    data = request.json
+    new_angles = solve_ik(data['target_xyz'], data['current_angles'])
+    return jsonify({'angles': new_angles}) if new_angles else (jsonify({'error': 'Limit'}), 400)
 
 if __name__ == '__main__':
     app.run(debug=True)
