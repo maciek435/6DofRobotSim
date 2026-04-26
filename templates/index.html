@@ -15,37 +15,39 @@
     </script>
 </head>
 <body class="p-4 h-screen flex flex-col gap-4">
-    <div class="control-panel p-3 flex items-center gap-2">
-        <button id="settings-btn" class="nav-btn flex items-center gap-2">
-            <img src="{{ url_for('static', filename='icons/settings.png') }}" class="w-4 h-4" alt="Settings">
-            Settings
-        </button>
-        <button id="home-btn" class="nav-btn flex items-center gap-2">
-            <img src="{{ url_for('static', filename='icons/home.png') }}" class="w-4 h-4" alt="Home">
-            Home XYZ
-        </button>
+    <div class="control-panel p-3 flex items-center justify-center gap-2">
+            <button id="settings-btn" class="nav-btn flex items-center gap-2">
+                <img src="{{ url_for('static', filename='icons/settings.png') }}" class="w-4 h-4" alt="Settings">
+                Settings
+            </button>
+            <button id="home-btn" class="nav-btn flex items-center gap-2">
+                <img src="{{ url_for('static', filename='icons/home.png') }}" class="w-4 h-4" alt="Home">
+                Home XYZ
+            </button>
     </div>
 
     <div class="flex flex-grow gap-4 min-h-0">
-        <div class="control-panel w-2/5 p-6 overflow-y-auto">
-
+        <div class="control-panel w-2/5 p-6">
                 <h2 class="text-slate-400 text-center text-xs font-bold uppercase mb-6">Forward Mode</h2>
                 <div id="sliders-container" class="space-y-6"></div>
 
-
                 <h2 class="text-slate-400 text-center text-xs font-bold uppercase mb-6">Inverse Mode</h2>
-                <div class="grid grid-cols-2 gap-4 p-4">
-                    <button onclick="jog('x', 1)" class="bg-slate-700 hover:bg-indigo-600 text-white font-bold py-3 rounded shadow-lg transition-all">X +</button>
-                    <button onclick="jog('x', -1)" class="bg-slate-700 hover:bg-indigo-600 text-white font-bold py-3 rounded shadow-lg transition-all">X -</button>
+                <div class="grid grid-cols-2 gap-3 p-4">
+                    <button onmousedown="startJog('x', 1)" onmouseup="stopJog()" onmouseleave="stopJog()" class="bg-slate-700 hover:bg-indigo-600 text-white font-bold py-3 rounded shadow-lg transition-all">X +</button>
+                    <button onmousedown="startJog('x', -1)" onmouseup="stopJog()" onmouseleave="stopJog()" class="bg-slate-700 hover:bg-indigo-600 text-white font-bold py-3 rounded shadow-lg transition-all">X -</button>
 
-                    <button onclick="jog('y', 1)" class="bg-slate-700 hover:bg-emerald-600 text-white font-bold py-3 rounded shadow-lg transition-all">Y +</button>
-                    <button onclick="jog('y', -1)" class="bg-slate-700 hover:bg-emerald-600 text-white font-bold py-3 rounded shadow-lg transition-all">Y -</button>
+                    <button onmousedown="startJog('y', 1)" onmouseup="stopJog()" onmouseleave="stopJog()" class="bg-slate-700 hover:bg-emerald-600 text-white font-bold py-3 rounded shadow-lg transition-all">Y +</button>
+                    <button onmousedown="startJog('y', -1)" onmouseup="stopJog()" onmouseleave="stopJog()" class="bg-slate-700 hover:bg-emerald-600 text-white font-bold py-3 rounded shadow-lg transition-all">Y -</button>
 
-                    <button onclick="jog('z', 1)" class="bg-slate-700 hover:bg-red-600 text-white font-bold py-3 rounded shadow-lg transition-all">Z +</button>
-                    <button onclick="jog('z', -1)" class="bg-slate-700 hover:bg-red-600 text-white font-bold py-3 rounded shadow-lg transition-all">Z -</button>
+                    <button onmousedown="startJog('z', 1)" onmouseup="stopJog()" onmouseleave="stopJog()" class="bg-slate-700 hover:bg-red-600 text-white font-bold py-3 rounded shadow-lg transition-all">Z +</button>
+                    <button onmousedown="startJog('z', -1)" onmouseup="stopJog()" onmouseleave="stopJog()" class="bg-slate-700 hover:bg-red-600 text-white font-bold py-3 rounded shadow-lg transition-all">Z -</button>
                 </div>
-                <p class="text-slate-400 text-[10px] uppercase mt-4 text-center">Step size: 0.1 units</p>
-
+                <div class="flex items-center gap-4 mb-4 bg-slate-100 p-2 rounded">
+                    <span class="text-xs font-bold uppercase">Speed:</span>
+                    <button onclick="changeSpeed(-0.02)" class="px-2 bg-white border rounded">-</button>
+                    <span id="speed-display" class="font-mono font-bold text-indigo-600">0.05</span>
+                    <button onclick="changeSpeed(0.02)" class="px-2 bg-white border rounded">+</button>
+                </div>
         </div>
         <div class="control-panel flex-grow relative">
             <div id="visualization-canvas" class="w-full h-full"></div>
@@ -57,8 +59,7 @@
             <div id="log-field" class="flex-grow p-3 overflow-y-auto whitespace-pre-wrap"></div>
         </div>
         <div class="control-panel w-3/5 p-4 flex items-center justify-center">
-            <div id="forward-traj" class="text-slate-400 italic">Trajectory: Forward</div>
-            <div id="inverse-traj" class="hidden text-slate-400 italic">Trajectory: Inverse</div>
+            <div id="forward-traj" class="text-slate-400 italic">Trajectory panel</div>
         </div>
         <div class="control-panel w-60 p-4 flex flex-col gap-2">
             <button class="btn-start flex items-center justify-center gap-2 flex-grow">

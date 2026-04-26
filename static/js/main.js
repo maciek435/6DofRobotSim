@@ -1,7 +1,11 @@
 import { RobotVisualizer } from './visualizer.js';
+
+
 const visualizer = new RobotVisualizer('visualization-canvas');
 let currentCoords = { x: 0, y: 0, z: 0 };
 let isLoaded = false;
+let jogInterval = null;
+let currentSpeed = 0.05;
 
 // --- GENEROWANIE SUWAKÓW ---
 const container = document.getElementById('sliders-container');
@@ -54,30 +58,69 @@ async function syncForward() {
     currentCoords = data.coords;
     visualizer.updateTCPText(data.coords);
 }
+// --- JOGGING ---
+window.startJog = function(axis, direction) {
+    if (jogInterval) return;
+    performJogStep(axis, direction);
+    jogInterval = setInterval(() => {
+        performJogStep(axis, direction);
+    }, 20);
+};
 
-// 3. --- JOGGING (Inverse) ---
-window.jog = async function(axis, dir) {
-    const step = 0.1;
-    let target = [currentCoords.x, currentCoords.y, currentCoords.z];
-    target[['x','y','z'].indexOf(axis)] += (dir * step);
-
-    const res = await fetch('/calculate_step', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({target_xyz: target, current_angles: getCurrentAngles()})
-    });
-    const data = await res.json();
-    if(data.angles) {
-        updateUI(data.angles);
-        await syncForward();
+window.stopJog = function() {
+    if (jogInterval) {
+        clearInterval(jogInterval);
+        jogInterval = null;
     }
 };
 
-document.getElementById('home-btn').onclick = () => {
-    updateUI([0,0,0,0,0,0]);
-    syncForward();
+window.changeSpeed = function(delta) {
+    let newSpeed = currentSpeed + delta;
+    newSpeed = Math.round(newSpeed * 100) / 100;
+    if (newSpeed >= 0.01 && newSpeed <= 0.50) {
+        currentSpeed = newSpeed;
+    }
+    const display = document.getElementById('speed-display');
+    if (display) {
+        display.innerText = currentSpeed.toFixed(2);
+    } else {
+        console.error("Nie znaleziono elementu o id 'speed-display'!");
+    }
 };
 
+async function performJogStep(axis, direction) {
+    let target = [currentCoords.x, currentCoords.y, currentCoords.z];
+    const axisIdx = ['x', 'y', 'z'].indexOf(axis);
+    target[axisIdx] += (direction * currentSpeed);
+
+    try {
+        const res = await fetch('/calculate_step', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                target_xyz: target,
+                current_angles: getCurrentAngles()
+            })
+        });
+        const data = await res.json();
+
+        if (data.angles) {
+            updateUI(data.angles);
+            visualizer.update(data.angles);
+            currentCoords = { x: target[0], y: target[1], z: target[2] };
+            visualizer.updateTCPText(currentCoords);
+        } else {
+            stopJog();
+        }
+    } catch (e) {
+        stopJog();
+    }
+}
+
+document.getElementById('home-btn').onclick = () => {
+    updateUI([0,16,-120,0,-45,0]);
+    syncForward();
+};
 // --- START ---
 window.onload = async () => {
     await syncForward();
