@@ -6,7 +6,7 @@ export class RobotVisualizer {
         this.container = document.getElementById(containerId);
         this.joints = [];
 
-        // --- TWOJA ORYGINALNA KONFIGURACJA WYMIARÓW ---
+        // --- KONFIGURACJA WYMIARÓW ---
         this.D = {
             baseRadius: 0.4,
             baseHeight: 0.8,
@@ -65,7 +65,6 @@ export class RobotVisualizer {
         const robot = new THREE.Group();
         this.scene.add(robot);
 
-        // --- TWOJA HIERARCHIA I DESIGN ---
         const base = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, this.D.baseHeight, 32), this.matBody);
         base.position.y = this.D.baseHeight / 2;
         robot.add(base);
@@ -93,7 +92,7 @@ export class RobotVisualizer {
         j3.add(this.createJointVisual(0.16, false));
         j2.add(j3);
 
-        // Przedramię z J4 w środku
+        // Przedramię z J4
         const j4_pos = this.D.armForearmFullLen * this.j4_pos_factor;
         const l3_fixed = this.createBox(0.25, j4_pos, 0.25);
         l3_fixed.position.y = j4_pos / 2;
@@ -124,7 +123,7 @@ export class RobotVisualizer {
         effector.position.y = this.D.effectorHeight / 2;
         j6.add(effector);
 
-        // --- TCP MARKER NA SAMYM KOŃCU ---
+        // --- TCP MARKER ---
         this.tcpMarker = new THREE.Mesh(new THREE.SphereGeometry(0.05), new THREE.MeshBasicMaterial({color: 0xff0000}));
         this.tcpMarker.position.y = this.D.effectorHeight; // Czubek efektora
         j6.add(this.tcpMarker);

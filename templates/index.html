@@ -15,11 +15,7 @@
     </script>
 </head>
 <body class="p-4 h-screen flex flex-col gap-4">
-
     <div class="control-panel p-3 flex items-center gap-2">
-        <button id="forward-nav-btn" class="nav-btn active">Forward</button>
-        <button id="inverse-nav-btn" class="nav-btn">Inverse</button>
-        <div class="flex-grow"></div>
         <button id="settings-btn" class="nav-btn flex items-center gap-2">
             <img src="{{ url_for('static', filename='icons/settings.png') }}" class="w-4 h-4" alt="Settings">
             Settings
@@ -32,11 +28,11 @@
 
     <div class="flex flex-grow gap-4 min-h-0">
         <div class="control-panel w-2/5 p-6 overflow-y-auto">
-            <div id="forward-controls">
+
                 <h2 class="text-slate-400 text-center text-xs font-bold uppercase mb-6">Forward Mode</h2>
                 <div id="sliders-container" class="space-y-6"></div>
-            </div>
-            <div id="inverse-controls" class="hidden text-center p-10">
+
+
                 <h2 class="text-slate-400 text-center text-xs font-bold uppercase mb-6">Inverse Mode</h2>
                 <div class="grid grid-cols-2 gap-4 p-4">
                     <button onclick="jog('x', 1)" class="bg-slate-700 hover:bg-indigo-600 text-white font-bold py-3 rounded shadow-lg transition-all">X +</button>
@@ -49,7 +45,7 @@
                     <button onclick="jog('z', -1)" class="bg-slate-700 hover:bg-red-600 text-white font-bold py-3 rounded shadow-lg transition-all">Z -</button>
                 </div>
                 <p class="text-slate-400 text-[10px] uppercase mt-4 text-center">Step size: 0.1 units</p>
-            </div>
+
         </div>
         <div class="control-panel flex-grow relative">
             <div id="visualization-canvas" class="w-full h-full"></div>

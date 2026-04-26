@@ -3,7 +3,7 @@ const visualizer = new RobotVisualizer('visualization-canvas');
 let currentCoords = { x: 0, y: 0, z: 0 };
 let isLoaded = false;
 
-// 1. GENEROWANIE SUWAKÓW
+// --- GENEROWANIE SUWAKÓW ---
 const container = document.getElementById('sliders-container');
 if (container) {
     for (let i = 1; i <= 6; i++) {
@@ -30,7 +30,6 @@ function addLog(msg, isError = false) {
     log.prepend(div);
 }
 
-// POMOCNIKI
 function getCurrentAngles() {
     return Array.from({length: 6}, (_, i) => parseFloat(document.getElementById(`s${i+1}`).value) || 0);
 }
@@ -42,7 +41,7 @@ function updateUI(angles) {
     });
 }
 
-// 2. SYNCHRONIZACJA (Forward)
+// --- SYNCHRONIZACJA FORWARD ---
 async function syncForward() {
     const angles = getCurrentAngles();
     visualizer.update(angles);
@@ -56,7 +55,7 @@ async function syncForward() {
     visualizer.updateTCPText(data.coords);
 }
 
-// 3. JOGGING (Inverse)
+// 3. --- JOGGING (Inverse) ---
 window.jog = async function(axis, dir) {
     const step = 0.1;
     let target = [currentCoords.x, currentCoords.y, currentCoords.z];
@@ -74,23 +73,12 @@ window.jog = async function(axis, dir) {
     }
 };
 
-// 4. NAV I HOME
-document.getElementById('forward-nav-btn').onclick = () => {
-    addLog("Switched to forward kinematics mode.");
-    document.getElementById('forward-controls').classList.remove('hidden');
-    document.getElementById('inverse-controls').classList.add('hidden');
-};
-document.getElementById('inverse-nav-btn').onclick = () => {
-    addLog("Switched to inverse kinematics mode.");
-    document.getElementById('forward-controls').classList.add('hidden');
-    document.getElementById('inverse-controls').classList.remove('hidden');
-};
 document.getElementById('home-btn').onclick = () => {
     updateUI([0,0,0,0,0,0]);
     syncForward();
 };
 
-// START
+// --- START ---
 window.onload = async () => {
     await syncForward();
     isLoaded = true;
