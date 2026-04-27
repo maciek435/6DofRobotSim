@@ -6,6 +6,7 @@ let currentCoords = { x: 0, y: 0, z: 0 };
 let isLoaded = false;
 let jogInterval = null;
 let currentSpeed = 0.05;
+let isAnimating = false;
 
 // --- GENEROWANIE SUWAKÓW ---
 const container = document.getElementById('sliders-container');
@@ -47,6 +48,7 @@ function updateUI(angles) {
 
 // --- SYNCHRONIZACJA FORWARD ---
 async function syncForward() {
+    if (isAnimating) return;
     const angles = getCurrentAngles();
     visualizer.update(angles);
     const res = await fetch('/calculate', {
@@ -116,6 +118,69 @@ async function performJogStep(axis, direction) {
         stopJog();
     }
 }
+
+async function animatePath(path) {
+    const numFrames = path[0].length;
+    for (let i = 0; i < numFrames; i++) {
+        const frameAngles = path.map(jointPath => jointPath[i]);
+        updateUI(frameAngles);
+        visualizer.update(frameAngles);
+        await new Promise(r => setTimeout(r, 30));
+    }
+    const finalAngles = path.map(jointPath => jointPath[numFrames - 1]);
+    isAnimating = false;
+    await syncForward();
+    isAnimating = true;
+}
+
+window.runFullSequence = async function() {
+    if (isAnimating) return;
+    isAnimating = true;
+
+    const pointA = [
+        parseFloat(document.getElementById('start-x').value),
+        parseFloat(document.getElementById('start-y').value),
+        parseFloat(document.getElementById('start-z').value)
+    ];
+    const pointB = [
+        parseFloat(document.getElementById('target-x').value),
+        parseFloat(document.getElementById('target-y').value),
+        parseFloat(document.getElementById('target-z').value)
+    ];
+
+    try {
+        // KROK 1: Dojazd do A
+        const resA = await fetch('/calculate_full_path', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ start_angles: getCurrentAngles(), target_xyz: pointA })
+        });
+        const dataA = await resA.json();
+        if (!dataA.path) throw new Error("A poza zasięgiem");
+        await animatePath(dataA.path);
+
+        await new Promise(r => setTimeout(r, 500)); // Pauza
+
+        // KROK 2: A do B
+        const anglesAtA = dataA.path.map(p => p[p.length - 1]);
+        const resB = await fetch('/calculate_full_path', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ start_angles: anglesAtA, target_xyz: pointB })
+        });
+        const dataB = await resB.json();
+        if (!dataB.path) throw new Error("B poza zasięgiem");
+        await animatePath(dataB.path);
+
+    } catch (e) {
+        alert(e.message);
+    } finally {
+        isAnimating = false;
+        await syncForward();
+    }
+
+}
+
 
 document.getElementById('home-btn').onclick = () => {
     updateUI([0,16,-120,0,-45,0]);

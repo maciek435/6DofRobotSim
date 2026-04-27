@@ -24,5 +24,14 @@ def calculate_step():
     new_angles = solve_ik(data['target_xyz'], data['current_angles'])
     return jsonify({'angles': new_angles}) if new_angles else (jsonify({'error': 'Limit'}), 400)
 
+@app.route('/calculate_full_path', methods=['POST'])
+def calculate_full_path():
+    data = request.json
+    path = generate_trajectory(data['start_angles'], data['target_xyz'], steps=60)
+    if path:
+        return jsonify({'status': 'success', 'path': path})
+    return jsonify({'status': 'error'}), 400
+
+
 if __name__ == '__main__':
     app.run(debug=True)
