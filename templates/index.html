@@ -134,11 +134,11 @@
                 <img src="{{ url_for('static', filename='icons/play.png') }}" class="w-6 h-6" alt="Start">
                 Start
             </button>
-            <button class="btn-pause flex items-center justify-center gap-2 flex-grow">
+            <button class="btn-pause flex items-center justify-center gap-2 flex-grow" onclick="togglePause()">
                 <img src="{{ url_for('static', filename='icons/pause.png') }}" class="w-6 h-6" alt="Pause">
                 Pause
             </button>
-            <button class="btn-stop flex items-center justify-center gap-2 flex-grow">
+            <button class="btn-stop flex items-center justify-center gap-2 flex-grow" onclick="stopProgram()">
                 <img src="{{ url_for('static', filename='icons/stop.png') }}" class="w-6 h-6" alt="Stop">
                 Stop
             </button>

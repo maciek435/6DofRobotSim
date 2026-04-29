@@ -8,6 +8,8 @@ let jogInterval = null;
 let currentSpeed = 0.05;
 let isAnimating = false;
 let waypoints = [];
+let isPaused = false;
+let stopRequested = false;
 
 // --- GENEROWANIE SUWAKÓW ---
 const container = document.getElementById('sliders-container');
@@ -123,6 +125,14 @@ async function performJogStep(axis, direction) {
 async function animatePath(path) {
     const numFrames = path[0].length;
     for (let i = 0; i < numFrames; i++) {
+
+        if(stopRequested) return;
+
+        while (isPaused) {
+            if (stopRequested) return;
+            await new Promise(r => setTimeout(r, 100));
+        }
+
         const frameAngles = path.map(jointPath => jointPath[i]);
         updateUI(frameAngles);
         visualizer.update(frameAngles);
@@ -149,14 +159,17 @@ async function moveToPoint(targetXYZ) {
 window.executeGlobalStart = async function() {
     if (isAnimating) return;
     isAnimating = true;
+    stopRequested = false;
+    isPaused = false;
 
-    // Pobranie ustawień trybu i pętli
     const mode = document.querySelector('input[name="traj-mode"]:checked').value;
     const loopEnabled = document.getElementById('loop-enable')?.checked || false;
     const loopCount = parseInt(document.getElementById('loop-count')?.value) || 1;
 
     try {
         for (let cycle = 0; cycle < loopCount; cycle++) {
+            if (stopRequested) break;
+
             addLog(`Rozpoczęto cykl ${cycle + 1}/${loopCount}`);
 
             if (mode === 'ab') {
@@ -190,11 +203,14 @@ window.executeGlobalStart = async function() {
 
             if (!loopEnabled) break;
         }
-        addLog("Program zakończony.");
+        if (stopRequested) addLog("PROGRAM ZATRZYMANY", true);
+        else addLog("Program zakończony.");
+
     } catch (e) {
         addLog(e.message, true);
     } finally {
         isAnimating = false;
+        stopRequested = false;
         await syncForward();
     }
 };
@@ -227,6 +243,25 @@ window.removeWaypoint = function(index) {
     waypoints.splice(index, 1);
     updateWaypointsList();
 };
+
+window.togglePause = function() {
+    isPaused = !isPaused;
+    const btn = document.querySelector('.btn-pause');
+    if (isPaused) {
+        btn.classList.add('bg-yellow-500');
+        addLog("Program wstrzymany (PAUSE)");
+    } else {
+        btn.classList.remove('bg-yellow-500');
+        addLog("Program wznowiony");
+    }
+}
+
+window.stopProgram = function() {
+    stopRequested = true;
+    isPaused = false;
+    addLog("Zatrzymywanie programu...", true);
+};
+
 
 function updateWaypointsList() {
     const list = document.getElementById('waypoints-list');
