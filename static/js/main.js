@@ -11,6 +11,70 @@ let waypoints = [];
 let isPaused = false;
 let stopRequested = false;
 
+// --- settings ---
+// --------------------------------------------------------------------------
+// --------------------------------------------------------------------------
+const labelMap = {
+    "baseH": "Wysokość podstawy",
+    "j1_tall": "Długość członu 1",
+    "biceps": "Długość członu 2",
+    "forearm": "Długość członu 3",
+    "wrist_off": "Offset nadgarstka",
+    "effector": "Długość efektora"
+};
+
+window.openSettings = async function() {
+    try {
+        const res = await fetch('/get_config');
+        const config = await res.json();
+
+        const container = document.getElementById('config-inputs');
+        container.innerHTML = '';
+
+        for (const [key, value] of Object.entries(config)) {
+            container.innerHTML += `
+                <div class="flex justify-between items-center bg-slate-50 p-2 rounded border border-slate-100">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase">${labelMap[key] || key}</label>
+                    <input type="number" step="0.01" data-key="${key}" value="${value}" 
+                           class="w-20 border rounded p-1 text-sm text-right font-mono focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+            `;
+        }
+        document.getElementById('settings').classList.remove('hidden');
+    } catch (e) {addLog("Błąd wczytywania konfiguracji", true);
+    }
+};
+
+window.closeSettings = function() {
+    document.getElementById("settings").classList.add('hidden');
+};
+
+window.saveSettings = async function() {
+    const inputs = document.querySelectorAll('#config-inputs input');
+    const newConfig = {};
+    inputs.forEach(input => {
+        newConfig[input.dataset.key] = parseFloat(input.value);
+    });
+
+    try {
+        const res = await fetch('/save_config', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(newConfig)
+        });
+
+        if (res.ok) {
+            addLog("Konfiguracja zapisana. Restartowanie...");
+            window.location.reload();
+        }
+    } catch (e) {
+        addLog("Błąd zapisu konfiguracji", true);
+    }
+};
+document.getElementById('settings-btn').onclick = openSettings;
+//-------------------------------------------------------------------------
+//-------------------------------------------------------------------------
+
 // --- GENEROWANIE SUWAKÓW ---
 const container = document.getElementById('sliders-container');
 if (container) {

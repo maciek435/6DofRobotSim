@@ -1,14 +1,8 @@
 {
-//    dł. podstawy
     "baseH": 0.8,
-//  dł. 1 członu
     "j1_tall": 0.7,
-//  dł. 2 członu
     "biceps": 1.5,
-//  dł. 3 członu
     "forearm": 1.3,
-//  offset nadgarstka
     "wrist_off": 0.2,
-//  długość efektora
     "effector": 0.4
 }

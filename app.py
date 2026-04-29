@@ -1,12 +1,33 @@
 from flask import Flask, render_template, jsonify, request
 import numpy as np
 from kinematics_solver import solve_ik, P_tcp_func, generate_trajectory
+import json
+
+CONFIG_FILE = 'config.json'
 
 app = Flask(__name__)
 
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/get_config')
+def get_config():
+    try:
+        with open(CONFIG_FILE, 'r') as f:
+            return jsonify(json.load(f))
+    except FileNotFoundError:
+        return jsonify({'error': 'Config file not found'}), 404
+
+@app.route('/save_config', methods=['POST'])
+def save_config():
+    new_data = request.json
+    config_to_save = {k: float(v) for k, v in new_data.items()}
+    with open(CONFIG_FILE, 'w') as f:
+        json.dump(config_to_save, f, indent=4)
+
+    return jsonify({"status":"success"})
+
 
 @app.route('/calculate', methods=['POST'])
 def calculate():
