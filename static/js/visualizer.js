@@ -152,7 +152,7 @@ export class RobotVisualizer {
 
     updateTCPText(coords) {
         if (!this.tcpLabel) return;
-        const text = `X:${coords.x.toFixed(2)} Y:${coords.y.toFixed(2)} Z:${coords.z.toFixed(2)}`;
+        const text = `X:${coords.x.toFixed(2)} Y:${coords.z.toFixed(2)} Z:${coords.y.toFixed(2)}`;
         const canvas = this.tcpLabel.material.map.image;
         const ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);

@@ -69,7 +69,7 @@ window.startJog = function(axis, direction) {
     performJogStep(axis, direction);
     jogInterval = setInterval(() => {
         performJogStep(axis, direction);
-    }, 20);
+    }, 50);
 };
 
 window.stopJog = function() {
@@ -95,7 +95,8 @@ window.changeSpeed = function(delta) {
 
 async function performJogStep(axis, direction) {
     let target = [currentCoords.x, currentCoords.y, currentCoords.z];
-    const axisIdx = ['x', 'y', 'z'].indexOf(axis);
+    const mapping = { 'x': 0, 'z': 1, 'y': 2 };
+    const axisIdx = mapping[axis];
     target[axisIdx] += (direction * currentSpeed);
 
     try {
@@ -175,13 +176,13 @@ window.executeGlobalStart = async function() {
             if (mode === 'ab') {
                 const pointA = [
                     parseFloat(document.getElementById('start-x').value),
-                    parseFloat(document.getElementById('start-y').value),
-                    parseFloat(document.getElementById('start-z').value)
+                    parseFloat(document.getElementById('start-z').value),
+                    parseFloat(document.getElementById('start-y').value)
                 ];
                 const pointB = [
                     parseFloat(document.getElementById('target-x').value),
-                    parseFloat(document.getElementById('target-y').value),
-                    parseFloat(document.getElementById('target-z').value)
+                    parseFloat(document.getElementById('target-z').value),
+                    parseFloat(document.getElementById('target-y').value)
                 ];
 
                 addLog("Jedzie do punktu A...");
@@ -229,7 +230,10 @@ window.toggleTrajMode = function(mode) {
 };
 
 window.recordWaypoint = function() {
-  const point = { x: currentCoords.x,y: currentCoords.y, z: currentCoords.z};
+  const point = {
+      x: currentCoords.x,
+      y: currentCoords.y,
+      z: currentCoords.z};
   waypoints.push(point);
   updateWaypointsList();
 };
