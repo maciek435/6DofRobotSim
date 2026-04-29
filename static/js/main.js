@@ -7,6 +7,7 @@ let isLoaded = false;
 let jogInterval = null;
 let currentSpeed = 0.05;
 let isAnimating = false;
+let waypoints = [];
 
 // --- GENEROWANIE SUWAKÓW ---
 const container = document.getElementById('sliders-container');
@@ -133,58 +134,163 @@ async function animatePath(path) {
     isAnimating = true;
 }
 
-window.runFullSequence = async function() {
+async function moveToPoint(targetXYZ) {
+    const res = await fetch('/calculate_full_path', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ start_angles: getCurrentAngles(), target_xyz: targetXYZ })
+    });
+    const data = await res.json();
+    if (!data.path) throw new Error(`Punkt [${targetXYZ}] poza zasięgiem!`);
+    // addLog(`Punkt [${targetXYZ}] poza zasięgiem!`);
+    await animatePath(data.path);
+}
+
+window.executeGlobalStart = async function() {
     if (isAnimating) return;
     isAnimating = true;
 
-    const pointA = [
-        parseFloat(document.getElementById('start-x').value),
-        parseFloat(document.getElementById('start-y').value),
-        parseFloat(document.getElementById('start-z').value)
-    ];
-    const pointB = [
-        parseFloat(document.getElementById('target-x').value),
-        parseFloat(document.getElementById('target-y').value),
-        parseFloat(document.getElementById('target-z').value)
-    ];
+    // Pobranie ustawień trybu i pętli
+    const mode = document.querySelector('input[name="traj-mode"]:checked').value;
+    const loopEnabled = document.getElementById('loop-enable')?.checked || false;
+    const loopCount = parseInt(document.getElementById('loop-count')?.value) || 1;
 
     try {
-        // KROK 1: Dojazd do A
-        const resA = await fetch('/calculate_full_path', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ start_angles: getCurrentAngles(), target_xyz: pointA })
-        });
-        const dataA = await resA.json();
-        if (!dataA.path) throw new Error("A poza zasięgiem");
-        await animatePath(dataA.path);
+        for (let cycle = 0; cycle < loopCount; cycle++) {
+            addLog(`Rozpoczęto cykl ${cycle + 1}/${loopCount}`);
 
-        await new Promise(r => setTimeout(r, 500)); // Pauza
+            if (mode === 'ab') {
+                const pointA = [
+                    parseFloat(document.getElementById('start-x').value),
+                    parseFloat(document.getElementById('start-y').value),
+                    parseFloat(document.getElementById('start-z').value)
+                ];
+                const pointB = [
+                    parseFloat(document.getElementById('target-x').value),
+                    parseFloat(document.getElementById('target-y').value),
+                    parseFloat(document.getElementById('target-z').value)
+                ];
 
-        // KROK 2: A do B
-        const anglesAtA = dataA.path.map(p => p[p.length - 1]);
-        const resB = await fetch('/calculate_full_path', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ start_angles: anglesAtA, target_xyz: pointB })
-        });
-        const dataB = await resB.json();
-        if (!dataB.path) throw new Error("B poza zasięgiem");
-        await animatePath(dataB.path);
+                addLog("Jedzie do punktu A...");
+                await moveToPoint(pointA);
+                await new Promise(r => setTimeout(r, 500));
 
+                addLog("Jedzie do punktu B...");
+                await moveToPoint(pointB);
+            }
+            else if (mode === 'teach') {
+                if (waypoints.length === 0) throw new Error("Lista punktów jest pusta! Nagraj punkty.");
+
+                for (let i = 0; i < waypoints.length; i++) {
+                    addLog(`Ruch do punktu P${i + 1}...`);
+                    await moveToPoint([waypoints[i].x, waypoints[i].y, waypoints[i].z]);
+                    await new Promise(r => setTimeout(r, 300));
+                }
+            }
+
+            if (!loopEnabled) break;
+        }
+        addLog("Program zakończony.");
     } catch (e) {
-        alert(e.message);
+        addLog(e.message, true);
     } finally {
         isAnimating = false;
         await syncForward();
     }
+};
 
+// window.runFullSequence = async function() {
+//     if (isAnimating) return;
+//     isAnimating = true;
+//
+//     const pointA = [
+//         parseFloat(document.getElementById('start-x').value),
+//         parseFloat(document.getElementById('start-y').value),
+//         parseFloat(document.getElementById('start-z').value)
+//     ];
+//     const pointB = [
+//         parseFloat(document.getElementById('target-x').value),
+//         parseFloat(document.getElementById('target-y').value),
+//         parseFloat(document.getElementById('target-z').value)
+//     ];
+//
+//     try {
+//         // KROK 1: Dojazd do A
+//         const resA = await fetch('/calculate_full_path', {
+//             method: 'POST',
+//             headers: { 'Content-Type': 'application/json' },
+//             body: JSON.stringify({ start_angles: getCurrentAngles(), target_xyz: pointA })
+//         });
+//         const dataA = await resA.json();
+//         if (!dataA.path) throw new Error("A poza zasięgiem");
+//         await animatePath(dataA.path);
+//
+//         await new Promise(r => setTimeout(r, 500)); // Pauza
+//
+//         // KROK 2: A do B
+//         const anglesAtA = dataA.path.map(p => p[p.length - 1]);
+//         const resB = await fetch('/calculate_full_path', {
+//             method: 'POST',
+//             headers: { 'Content-Type': 'application/json' },
+//             body: JSON.stringify({ start_angles: anglesAtA, target_xyz: pointB })
+//         });
+//         const dataB = await resB.json();
+//         if (!dataB.path) throw new Error("B poza zasięgiem");
+//         await animatePath(dataB.path);
+//
+//     } catch (e) {
+//         alert(e.message);
+//     } finally {
+//         isAnimating = false;
+//         await syncForward();
+//     }
+// }
+//przelaczanie trybow trajektorii
+window.toggleTrajMode = function(mode) {
+    const teach = document.getElementById('teach-section');
+    const ab = document.getElementById('inverse-traj');
+    if (mode === 'teach') {
+        teach.classList.remove('hidden');
+        if (ab) ab.classList.add('hidden');
+    } else {
+        teach.classList.add('hidden');
+        if (ab) ab.classList.remove('hidden');
+    }
+};
+
+window.recordWaypoint = function() {
+  const point = { x: currentCoords.x,y: currentCoords.y, z: currentCoords.z};
+  waypoints.push(point);
+  updateWaypointsList();
+};
+
+window.clearWaypoints = function() {
+    waypoints = [];
+    updateWaypointsList();
+};
+
+window.removeWaypoint = function(index) {
+    waypoints.splice(index, 1);
+    updateWaypointsList();
+};
+
+function updateWaypointsList() {
+    const list = document.getElementById('waypoints-list');
+    if(!list) return;
+    if (waypoints.length === 0) {
+        list.innerHTML = "Brak nagranych punktów...";
+        return;
+    }
+    list.innerHTML = waypoints.map((p, i) =>
+        `<div class="border-b py-1">P${i+1}: [${p.x.toFixed(2)}, ${p.y.toFixed(2)}, ${p.z.toFixed(2)}]</div>`
+    ).join('');
 }
 
 
 document.getElementById('home-btn').onclick = () => {
     updateUI([0,16,-120,0,-45,0]);
     syncForward();
+    addLog("Returned Home.");
 };
 // --- START ---
 window.onload = async () => {
