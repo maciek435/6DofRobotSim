@@ -2,19 +2,21 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 export class RobotVisualizer {
-    constructor(containerId) {
+    constructor(containerId, config) {
         this.container = document.getElementById(containerId);
         this.joints = [];
 
         // --- KONFIGURACJA WYMIARÓW ---
         this.D = {
+            baseHeight: config.baseH,
+            j1_tall: config.j1_tall,
+            armBicepsLen: config.biceps,
+            armForearmFullLen: config.forearm,
+            wrist_off: config.wrist_off,
+            effectorHeight: config.effector,
+
             baseRadius: 0.4,
-            baseHeight: 0.8,
-            j1_tall: 0.7,
-            armBicepsLen: 1.5,
-            armForearmFullLen: 1.3,
             radius: 0.18,
-            effectorHeight: 0.4,
             accentColor: 0x3498db,
             bodyColor: 0xeeeeee
         };

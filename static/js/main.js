@@ -1,7 +1,8 @@
 import { RobotVisualizer } from './visualizer.js';
 
 
-const visualizer = new RobotVisualizer('visualization-canvas');
+// const visualizer = new RobotVisualizer('visualization-canvas');
+let visualizer;
 let currentCoords = { x: 0, y: 0, z: 0 };
 let isLoaded = false;
 let jogInterval = null;
@@ -10,6 +11,7 @@ let isAnimating = false;
 let waypoints = [];
 let isPaused = false;
 let stopRequested = false;
+
 
 // --- settings ---
 // --------------------------------------------------------------------------
@@ -22,6 +24,7 @@ const labelMap = {
     "wrist_off": "Offset nadgarstka",
     "effector": "Długość efektora"
 };
+
 
 window.openSettings = async function() {
     try {
@@ -351,9 +354,17 @@ document.getElementById('home-btn').onclick = () => {
 };
 // --- START ---
 window.onload = async () => {
-    await syncForward();
-    isLoaded = true;
-    if (isLoaded) {
-        addLog("System Online. Initializing kinematics...");
+    try {
+        const response = await fetch('/get_config');
+        const config = await response.json();
+
+        visualizer = new RobotVisualizer('visualization-canvas', config);
+
+        await syncForward();
+
+        isLoaded = true;
+        addLog("System Online. Kinematics initialized with custom dimensions.");
+    } catch (e) {
+        addLog("Błąd inicjalizacji systemu: " + e.message, true);
     }
 };
