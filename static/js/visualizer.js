@@ -127,7 +127,7 @@ export class RobotVisualizer {
 
         // --- TCP MARKER ---
         this.tcpMarker = new THREE.Mesh(new THREE.SphereGeometry(0.05), new THREE.MeshBasicMaterial({color: 0xff0000}));
-        this.tcpMarker.position.y = this.D.effectorHeight; // Czubek efektora
+        this.tcpMarker.position.y = this.D.effectorHeight;
         j6.add(this.tcpMarker);
 
         // Label
@@ -168,7 +168,6 @@ export class RobotVisualizer {
     update(anglesDeg) {
         if (this.joints.length < 6) return;
         const rad = anglesDeg.map(a => a * (Math.PI / 180));
-        // TWOJE ORYGINALNE MAPOWANIE OSI
         this.joints[0].rotation.y = rad[0];
         this.joints[1].rotation.z = rad[1];
         this.joints[2].rotation.z = rad[2];

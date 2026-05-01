@@ -114,19 +114,20 @@
                     <div class="text-slate-400 text-center py-4">No points recorded. Move robot and click Record.</div>
                 </div>
 
-                <div class="mt-auto pt-2 flex items-center justify-between">
-                    <div class="flex items-center gap-4">
-                        <label class="flex items-center gap-2 text-xs font-bold cursor-pointer">
-                            <input type="checkbox" id="loop-enable" class="w-3 h-3 accent-indigo-600">
-                            LOOP MODE
-                        </label>
-                        <div class="flex items-center gap-2 border-l pl-4">
-                            <span class="text-[10px] uppercase text-slate-500">Cycles:</span>
-                            <input type="number" id="loop-count" value="1" min="1" class="w-10 border rounded text-center text-xs p-1">
-                        </div>
+            </div>
+            <div class="mt-auto pt-2 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <label class="flex items-center gap-2 text-xs font-bold cursor-pointer">
+                        <input type="checkbox" id="loop-enable" class="w-3 h-3 accent-indigo-600">
+                        LOOP MODE
+                    </label>
+                    <div class="flex items-center gap-2 border-l pl-4">
+                        <span class="text-[10px] uppercase text-slate-500">Cycles:</span>
+                        <input type="number" id="loop-count" value="1" min="1" class="w-10 border rounded text-center text-xs p-1">
                     </div>
                 </div>
             </div>
+
         </div>
         <div class="control-panel w-60 p-4 flex flex-col gap-2">
             <button class="btn-start flex items-center justify-center gap-2 flex-grow" onclick="executeGlobalStart()">
