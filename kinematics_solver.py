@@ -1,7 +1,6 @@
 import numpy as np
 import sympy as sp
 from scipy.optimize import least_squares
-import json
 
 
 def get_kinematics_functions(config):
@@ -39,7 +38,41 @@ def solve_ik(target_xyz, current_angles_deg, config):
     return np.degrees(res.x).tolist() if res.success else None
 
 
-def generate_trajectory(start_angles, target_xyz, config, steps=30):
+def _generate_bangbang_profile(t, q_start, a, T):
+    """Oblicza pozycję w chwili t dla profilu Bang-Bang (trapezoidalny profil prędkości)."""
+    if T < 1e-9:
+        return q_start + a * (T ** 2) / 4
+    if t < T / 2:
+        return q_start + 0.5 * a * t ** 2
+    elif t <= T:
+        return q_start + a * (T ** 2) / 4 - 0.5 * a * (T - t) ** 2
+    else:
+        return q_start + a * (T ** 2) / 4
+
+
+def generate_trajectory(start_angles, target_xyz, config, steps=60):
     final_angles = solve_ik(target_xyz, start_angles, config)
-    if not final_angles: return None
-    return [np.linspace(s, f, steps).tolist() for s, f in zip(start_angles, final_angles)]
+    if not final_angles:
+        return None
+
+    q_in = np.radians(start_angles)
+    q_target = np.radians(final_angles)
+    dq = q_target - q_in
+
+    amax_limits = np.array([3.0, 3.0, 3.0, 3.0, 3.0, 3.0])
+    T_min_array = 2 * np.sqrt(np.abs(dq) / np.maximum(amax_limits, 1e-6))
+    T_max = np.max(T_min_array)
+
+    a_scaled = np.where(np.abs(dq) < 1e-9, 0.0, 4 * dq / (T_max ** 2))
+
+    time_samples = np.linspace(0, T_max, steps)
+
+    path = []
+    for j in range(6):
+        joint_path = [
+            np.degrees(_generate_bangbang_profile(t, q_in[j], a_scaled[j], T_max))
+            for t in time_samples
+        ]
+        path.append(joint_path)
+
+    return path
