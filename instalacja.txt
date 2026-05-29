@@ -1,8 +1,8 @@
 git clone https://github.com/maciek435/6DofRobotSim.git
 
-python -m venv venv
+python3.10 -m venv venv
 
-venv\Scripts\activate
+source venv/bin/activate
 
 pip install -r requirements.txt
 
@@ -10,10 +10,10 @@ pip install -r requirements.txt
 uruchomienie:
 
 na początku uruchomienia vscode raz!:
-venv\Scripts\activate musi być w terminalu (venv)
+source venv/bin/activate musi być w terminalu (venv)
 
 potem:
 
-python app.py
+python3.10 app.py
 
 otworzyć link hosta
